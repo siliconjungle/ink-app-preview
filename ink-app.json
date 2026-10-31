@@ -1,0 +1,36 @@
+{
+  "slug": "preview",
+  "title": "Preview",
+  "repository": "https://github.com/siliconjungle/ink-app-preview",
+  "directory": "public",
+  "entry": "index.html",
+  "desktop": {
+    "entry": "preview",
+    "context": "self",
+    "icon": "./preview.svg",
+    "fileTypes": [
+      "*"
+    ],
+    "dock": false,
+    "window": {
+      "width": 760,
+      "height": 560
+    }
+  },
+  "capabilities": [
+    "world.read",
+    "desktop.open"
+  ],
+  "commands": [
+    {
+      "id": "choose",
+      "title": "Open a file in Preview…",
+      "description": "Open Preview to choose a file.",
+      "inputs": [],
+      "handler": {
+        "type": "open"
+      }
+    }
+  ],
+  "commandsClient": "commands.mjs"
+}

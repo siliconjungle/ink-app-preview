@@ -1,0 +1,10 @@
+{
+  "name": "@ink-os/app-preview",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "node dev.mjs",
+    "test": "node --test tests/*.test.mjs"
+  },
+  "license": "MIT"
+}
