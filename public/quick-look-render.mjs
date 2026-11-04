@@ -13,7 +13,7 @@ export function renderQuickLook({ink, file, root}) {
     container.textContent = 'Loading preview…';
     // A dedicated container prevents an older asynchronous read from changing a newer selection.
     void (async () => {try {
-      const text = await readDocument({...view, source: file.location ? ink.files.url(file.id) : ''}, {signal: controller.signal});
+      const text = await readDocument(view, {signal:controller.signal, readText:() => ink.files.readText(file.id)});
       if (container.isConnected) await renderDocument(container, text, documentFormat(view.name, view.mime, text), {signal: controller.signal});
     } catch (error) {
       if (container.isConnected) {container.textContent = error.message; container.setAttribute('role', 'alert');}

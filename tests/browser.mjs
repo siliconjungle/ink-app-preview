@@ -49,16 +49,24 @@ await test('cancelled and detached previews do not render stale diagrams', async
   await renderDocument(detached, 'graph TD\nOld-->File', 'mermaid');
   assert(!detached.querySelector('svg'), 'Detached diagram rendered');
 });
-await test('uploaded text is fetched, and reads over 2 MiB fail clearly', async () => {
-  const text = await readDocument({source:'data:text/plain,flowchart%20LR%0AA--%3EB'});
-  assert(text === 'flowchart LR\nA-->B', 'Wrong uploaded content');
+await test('uploaded text uses the Ink file API and rejects reads over 2 MiB', async () => {
+  let reads = 0;
+  const text = await readDocument({source:'blob:stored'}, {readText:async () => {reads++; return {text:'flowchart LR\nA-->B'};}});
+  assert(text === 'flowchart LR\nA-->B' && reads === 1, 'Wrong uploaded content');
   let error;
-  try {await readDocument({source:URL.createObjectURL(new Blob(['x'.repeat(2*1024*1024+1)]))});} catch (value) {error=value;}
+  try {await readDocument({source:'blob:stored'}, {readText:async () => ({text:'x'.repeat(2*1024*1024+1)})});} catch (value) {error=value;}
   assert(error?.message.includes('too large'), 'Oversized content was accepted');
+  const controller = new AbortController();
+  let finish;
+  const pending = readDocument({source:'blob:stored'}, {signal:controller.signal, readText:() => new Promise(resolve => {finish=resolve;})});
+  controller.abort(); finish({text:'Old file'});
+  let cancelled;
+  try {await pending;} catch (value) {cancelled=value;}
+  assert(cancelled?.name === 'AbortError', 'An obsolete file read was not cancelled');
 });
 await test('quick preview renders Mermaid and disposes immediately on selection change', async () => {
   const target = root(), file = {id:'example',kind:'file',title:'diagram.mmd',body:'{}',location:'blob:stored'};
-  const dispose = renderQuickLook({root:target,file,ink:{files:{url:()=> 'data:text/plain,flowchart%20LR%0AQuick--%3ELook'}}});
+  const dispose = renderQuickLook({root:target,file,ink:{files:{readText:async()=>({text:'flowchart LR\nQuick-->Look'})}}});
   assert(typeof dispose === 'function', 'Disposal must be synchronous');
   for (let i = 0; i < 100 && !target.querySelector('svg'); i++) await new Promise(resolve => setTimeout(resolve, 20));
   assert(target.querySelector('svg'), 'Quick preview did not render');

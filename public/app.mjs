@@ -56,7 +56,7 @@ function paint() {
     const root = node('div'), signal = readController.signal;
     content.append(root);
     root.textContent = 'Loading preview…';
-    readDocument(view, {signal}).then(text => {
+    readDocument(view, {signal, readText:() => ink.files.readText(file.id)}).then(text => {
       if (!signal.aborted) return renderDocument(root, text, documentFormat(view.name, view.mime, text), {signal});
     }).catch(error => {
       if (!signal.aborted) root.replaceChildren(node('p', error.message, {className:'empty', role:'alert'}));

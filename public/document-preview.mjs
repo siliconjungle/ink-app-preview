@@ -3,23 +3,14 @@ import {marked, DOMPurify} from './vendor/markdown.mjs';
 const MAX_DOCUMENT_BYTES = 2 * 1024 * 1024;
 let mermaidPromise, serial = 0, renderQueue = Promise.resolve();
 
-export async function readDocument(view, {signal} = {}) {
-  if (!view.source) return view.text;
-  const response = await fetch(view.source, {signal});
-  if (!response.ok) throw Error('Unable to read this file (' + response.status + ').');
-  if (Number(response.headers.get('content-length')) > MAX_DOCUMENT_BYTES) throw Error('This file is too large to preview (maximum 2 MiB).');
-  const reader = response.body.getReader(), chunks = [];
-  let size = 0;
-  try {
-    for (;;) {
-      const {done, value} = await reader.read();
-      if (done) break;
-      size += value.byteLength;
-      if (size > MAX_DOCUMENT_BYTES) throw Error('This file is too large to preview (maximum 2 MiB).');
-      chunks.push(value);
-    }
-  } finally {await reader.cancel();}
-  return new Blob(chunks).text();
+export async function readDocument(view, {signal, readText} = {}) {
+  signal?.throwIfAborted();
+  // The host reads stored content on our behalf; app frames cannot fetch across its origin.
+  const text = view.source ? (await readText()).text : view.text;
+  signal?.throwIfAborted();
+  if (typeof text !== 'string') throw Error('Unable to read this file as text.');
+  if (new TextEncoder().encode(text).byteLength > MAX_DOCUMENT_BYTES) throw Error('This file is too large to preview (maximum 2 MiB).');
+  return text;
 }
 
 function node(tag, text, className) {
