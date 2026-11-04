@@ -1,6 +1,6 @@
 # Preview
 
-Read text, images, audio and video, and download other files in an isolated Ink app.
+Read text, Markdown, Mermaid diagrams, images, audio and video, and download other files in an isolated Ink app.
 
 ## Install
 
@@ -20,9 +20,21 @@ The CLI deploys committed source from your checkout. Commit any edits before dep
 
 Read-only: files remain in their owning namespaces. More specific installed file handlers take precedence over Preview.
 
+## Mermaid and Markdown
+
+Open a `.mmd` or `.mermaid` file to render a standalone diagram. Markdown files (`.md`, `.markdown`, or `text/markdown`) render prose, tables, code blocks and fenced `mermaid` diagrams. Notes containing Mermaid fences work too. Both normal Preview windows and temporary Space-key previews use the same renderer.
+
+Each diagram includes an expandable **Mermaid source** section. Invalid syntax shows an error beside the original source; other diagrams in the document still render. Text uploads are read from their stored contents rather than their metadata. Uploaded document previews are limited to 2 MiB; Mermaid diagrams use a 50,000-character and 500-edge limit. Downloads preserve the original file.
+
+Mermaid, Markdown parsing and sanitization are bundled locally, so rendering does not require a CDN or internet access. Plain text stays literal. Markdown is sanitized, remote images and embedded apps are excluded, and Mermaid uses strict mode with diagram links disabled.
+
 ## Development
 
 `npm run dev` opens a local development server. Preview fixtures are separate from live Ink data.
+
+Browser dependencies are pinned in `package-lock.json`. Run `npm ci && npm run build` to regenerate the committed `public/vendor` bundles and third-party notices before deployment. Lazy-loaded Mermaid chunks are served by the app itself.
+
+`npm test` checks file classification and existing media behavior. Run `npm run test:browser` and open the printed localhost URL for browser checks covering real SVG rendering, Markdown diagrams, invalid syntax, sanitized markup, uploaded text, cancellation, and temporary-preview disposal.
 
 ## License
 
