@@ -9,6 +9,11 @@
     "context": "self",
     "icon": "./preview.svg",
     "fileTypes": [
+      ".mmd",
+      ".mermaid",
+      "text/vnd.mermaid",
+      "text/x-mermaid",
+      "application/vnd.mermaid",
       "*"
     ],
     "dock": false,
@@ -18,6 +23,14 @@
     },
     "preview": {
       "fileTypes": [
+        ".mmd",
+        ".mermaid",
+        "text/vnd.mermaid",
+        "text/x-mermaid",
+        "application/vnd.mermaid",
+        ".md",
+        ".markdown",
+        "text/markdown",
         "*"
       ]
     }
@@ -29,7 +42,7 @@
   "commands": [
     {
       "id": "choose",
-      "title": "Open a file in Preview…",
+      "title": "Open a file in Preview\u2026",
       "description": "Open Preview to choose a file.",
       "inputs": [],
       "handler": {
